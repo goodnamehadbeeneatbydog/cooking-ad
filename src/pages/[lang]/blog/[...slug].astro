@@ -1,0 +1,179 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import AdManager from '../../../components/ads/AdManager.astro';
+import { t, type Lang } from '../../../utils/i18n';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map(post => ({
+    params: { lang: post.data.lang, slug: post.slug },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { lang } = Astro.params as { lang: Lang };
+const { Content } = await post.render();
+
+// Get counterpart language version
+const allPosts = await getCollection('blog');
+const counterpart = post.data.i18nSlug
+  ? allPosts.find(p => p.data.i18nSlug === post.data.i18nSlug && p.data.lang !== lang)
+  : null;
+
+// Get related posts
+const siblingPosts = allPosts.filter((entry) =>
+  !entry.data.draft && entry.data.lang === lang && entry.slug !== post.slug
+);
+const relatedPosts = siblingPosts
+  .filter(p => p.data.category === post.data.category || p.data.tags.some(t => post.data.tags.includes(t)))
+  .slice(0, 3);
+---
+
+<Layout title={`${post.data.title} - ${lang === 'zh' ? '中餐指南' : 'Chinese Cooking Guide'}`} description={post.data.description} lang={lang}>
+  <Header lang={lang} />
+
+  <main class="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <article class="bg-white rounded-xl shadow-sm p-6 md:p-10 border border-gray-100">
+      <!-- Header -->
+      <header class="mb-8">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="px-3 py-1 bg-primary-light text-primary text-sm font-medium rounded-full">
+              {post.data.category}
+            </span>
+            {post.data.difficulty && (
+              <span class={`text-xs font-medium px-2 py-0.5 rounded ${
+                post.data.difficulty === 'Easy' ? 'bg-green-50 text-green-600' :
+                post.data.difficulty === 'Medium' ? 'bg-yellow-50 text-yellow-600' :
+                'bg-red-50 text-red-600'
+              }`}>
+                {post.data.difficulty}
+              </span>
+            )}
+            <time class="text-sm text-text-muted">
+              {post.data.pubDate.toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+            </time>
+          </div>
+          {counterpart && (
+            <a
+              href={`/${counterpart.data.lang}/blog/${counterpart.slug}`}
+              class="px-3 py-1 text-sm rounded-full bg-gray-100 text-text-secondary hover:bg-gray-200 transition-colors"
+            >
+              {lang === 'zh' ? 'English' : '中文'}
+            </a>
+          )}
+        </div>
+        <h1 class="text-3xl md:text-4xl font-bold text-text-primary mb-4 font-display">{post.data.title}</h1>
+        <p class="text-lg text-text-secondary">{post.data.description}</p>
+
+        <!-- Recipe Meta -->
+        {(post.data.prepTime || post.data.cookTime || post.data.servings) && (
+          <div class="flex flex-wrap gap-4 mt-4 p-4 bg-surface rounded-lg border border-gray-100">
+            {post.data.prepTime && (
+              <div class="flex items-center gap-2 text-sm">
+                <span class="text-text-muted">{t(lang, 'blog.prepTime')}:</span>
+                <span class="font-medium text-text-primary">{post.data.prepTime}</span>
+              </div>
+            )}
+            {post.data.cookTime && (
+              <div class="flex items-center gap-2 text-sm">
+                <span class="text-text-muted">{t(lang, 'blog.cookTime')}:</span>
+                <span class="font-medium text-text-primary">{post.data.cookTime}</span>
+              </div>
+            )}
+            {post.data.servings && (
+              <div class="flex items-center gap-2 text-sm">
+                <span class="text-text-muted">{t(lang, 'blog.servings')}:</span>
+                <span class="font-medium text-text-primary">{post.data.servings}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {post.data.tags.length > 0 && (
+          <div class="flex flex-wrap gap-2 mt-4">
+            {post.data.tags.map(tag => (
+              <span class="px-2 py-1 bg-gray-100 text-text-secondary text-xs rounded">{tag}</span>
+            ))}
+          </div>
+        )}
+      </header>
+
+      <!-- Top Ad -->
+      <AdManager position="article-top" />
+
+      <!-- Content with inline ads -->
+      <div class="prose max-w-none">
+        <Content />
+      </div>
+
+      <!-- Bottom Ad -->
+      <AdManager position="article-bottom" />
+    </article>
+
+    <!-- Related Posts -->
+    {relatedPosts.length > 0 && (
+      <section class="mt-10">
+        <h2 class="text-xl font-bold mb-4 text-text-primary font-display">
+          {lang === 'zh' ? '相关菜谱' : 'Related Recipes'}
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {relatedPosts.map(p => (
+            <a
+              href={`/${lang}/blog/${p.slug}`}
+              class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:shadow-md transition-shadow"
+            >
+              <span class="text-xs text-primary font-medium">{p.data.category}</span>
+              <h3 class="font-semibold mt-1 line-clamp-2 text-text-primary font-display">{p.data.title}</h3>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </main>
+
+  <Footer lang={lang} />
+</Layout>
+
+<script is:inline>
+  // Inline ads between paragraphs
+  document.addEventListener('DOMContentLoaded', function() {
+    const prose = document.querySelector('.prose');
+    if (!prose) return;
+
+    const paragraphs = prose.querySelectorAll('p, h2, h3, pre, ul, ol');
+    const adSlots = [
+      { slot: 'post-inline-1', format: 'auto' },
+      { slot: 'post-inline-2', format: 'auto' },
+    ];
+
+    const insertPoints = [Math.floor(paragraphs.length * 0.3), Math.floor(paragraphs.length * 0.7)];
+
+    insertPoints.forEach((point, idx) => {
+      if (point < paragraphs.length && adSlots[idx]) {
+        const adDiv = document.createElement('div');
+        adDiv.className = 'ad-container my-6 p-4 bg-surface rounded-lg border border-gray-200';
+        adDiv.innerHTML = `
+          <p class="text-xs text-text-muted text-center mb-2">Advertisement</p>
+          <ins class="adsbygoogle" style="display:block" data-ad-slot="${adSlots[idx].slot}" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        `;
+
+        const target = paragraphs[point];
+        if (target && target.parentNode) {
+          target.parentNode.insertBefore(adDiv, target.nextSibling);
+          if (window.adsbygoogle) {
+            window.adsbygoogle.push({});
+          }
+        }
+      }
+    });
+  });
+</script>

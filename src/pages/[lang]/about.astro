@@ -1,0 +1,87 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { t, type Lang } from '../../utils/i18n';
+
+export async function getStaticPaths() {
+  return ['en', 'zh'].map(lang => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+
+const title = lang === 'zh' ? '关于我们 - 中餐指南' : 'About - Chinese Cooking Guide';
+const description = lang === 'zh'
+  ? '了解中餐指南的使命——让全世界都能在家做出地道中国菜'
+  : 'Learn about our mission to help everyone cook authentic Chinese food at home';
+---
+
+<Layout title={title} description={description} lang={lang}>
+  <Header lang={lang} />
+
+  <main class="flex-1 bg-white">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <h1 class="text-3xl font-bold text-text-primary mb-8 font-display">
+        {lang === 'zh' ? '关于我们' : 'About Us'}
+      </h1>
+
+      <div class="prose max-w-none">
+        {lang === 'zh' ? (
+          <>
+            <h2>我们的使命</h2>
+            <p>中餐指南（cooking.actfont.top）致力于<strong>让全世界的人都能在家做出地道的中国菜</strong>。我们相信，美食是了解一个文化最好的方式，而中国菜的丰富多样值得被更多人发现和喜爱。</p>
+
+            <h2>我们提供什么</h2>
+            <ul>
+              <li><strong>经典菜谱</strong>：覆盖川菜、粤菜、湘菜、鲁菜等八大菜系，从家常菜到宴席大菜</li>
+              <li><strong>详细步骤</strong>：每道菜都有清晰的食材清单和分步做法，新手也能轻松上手</li>
+              <li><strong>西式替代</strong>：对于海外读者，提供当地超市容易买到的食材替代建议</li>
+              <li><strong>文化故事</strong>：每道菜背后的历史和文化，让烹饪更有趣</li>
+            </ul>
+
+            <h2>我们的标准</h2>
+            <p>每道菜谱都经过认真研究和测试：</p>
+            <ul>
+              <li>食材用量精准，步骤清晰</li>
+              <li>标注难度等级和预计用时</li>
+              <li>提供失败原因分析和改进建议</li>
+              <li>包含实用的烹饪技巧和窍门</li>
+            </ul>
+
+            <h2>联系我们</h2>
+            <p>有任何建议或想学习的菜谱？欢迎联系：</p>
+            <p>Email: <a href="mailto:contact@actfont.top">contact@actfont.top</a></p>
+          </>
+        ) : (
+          <>
+            <h2>Our Mission</h2>
+            <p>Chinese Cooking Guide (cooking.actfont.top) is dedicated to <strong>helping people around the world cook authentic Chinese dishes at home</strong>. We believe food is the best way to understand a culture, and the incredible diversity of Chinese cuisine deserves to be discovered and enjoyed by everyone.</p>
+
+            <h2>What We Offer</h2>
+            <ul>
+              <li><strong>Classic Recipes</strong>: Covering all eight great Chinese cuisines — from Sichuan's fiery heat to Cantonese delicate flavors</li>
+              <li><strong>Detailed Instructions</strong>: Clear ingredient lists and step-by-step directions that even beginners can follow</li>
+              <li><strong>Western Substitutes</strong>: Ingredient alternatives you can actually find at your local supermarket</li>
+              <li><strong>Cultural Stories</strong>: The history and tradition behind each dish, making cooking more meaningful</li>
+            </ul>
+
+            <h2>Our Standards</h2>
+            <p>Every recipe is carefully researched and tested:</p>
+            <ul>
+              <li>Precise measurements and clear step-by-step instructions</li>
+              <li>Difficulty level and estimated cooking time clearly marked</li>
+              <li>Troubleshooting tips for common mistakes</li>
+              <li>Practical cooking techniques and pro tips</li>
+            </ul>
+
+            <h2>Contact Us</h2>
+            <p>Have a recipe request or feedback? We'd love to hear from you:</p>
+            <p>Email: <a href="mailto:contact@actfont.top">contact@actfont.top</a></p>
+          </>
+        )}
+      </div>
+    </div>
+  </main>
+
+  <Footer lang={lang} />
+</Layout>

@@ -1,0 +1,106 @@
+---
+import '../styles/global.css';
+
+export interface Props {
+  title: string;
+  description?: string;
+  lang?: 'en' | 'zh';
+  canonical?: string;
+}
+
+const { title, description = 'Learn authentic Chinese cooking with step-by-step recipes', lang = 'en', canonical } = Astro.props;
+const canonicalURL = canonical ? new URL(canonical) : new URL(Astro.url.pathname, Astro.site);
+
+// Ad configs
+const GOOGLE_ADSENSE_CLIENT = import.meta.env.PUBLIC_GOOGLE_ADSENSE_CLIENT || '';
+const MEDIANET_CID = import.meta.env.PUBLIC_MEDIANET_CID || '';
+const CARBON_SERVE = import.meta.env.PUBLIC_CARBON_SERVE || '';
+const INFOLINKS_PID = import.meta.env.PUBLIC_INFOLINKS_PID || '';
+---
+
+<!DOCTYPE html>
+<html lang={lang}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="generator" content={Astro.generator} />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL} />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Google AdSense -->
+  {GOOGLE_ADSENSE_CLIENT && (
+    <script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${GOOGLE_ADSENSE_CLIENT}`}
+      crossorigin="anonymous"></script>
+  )}
+
+  <!-- Media.net -->
+  {MEDIANET_CID && (
+    <script async src={`//contextual.media.net/dmedianet.js?cid=${MEDIANET_CID}`}></script>
+  )}
+
+  <!-- Carbon Ads -->
+  {CARBON_SERVE && (
+    <script async id="_carbonads_js" src={`//cdn.carbonads.com/carbon.js?serve=${CARBON_SERVE}&placement=cookingad`}></script>
+  )}
+
+  <!-- Infolinks -->
+  {INFOLINKS_PID && (
+    <script type="text/javascript">
+      var infolinks_pid = "{INFOLINKS_PID}";
+      var infolinks_wsid = 0;
+    </script>
+    <script type="text/javascript" src="//resources.infolinks.com/js/infolinks_main.js"></script>
+  )}
+
+</head>
+<body class="bg-surface text-text-primary min-h-screen flex flex-col">
+  <slot />
+</body>
+</html>
+
+<style is:global>
+  .prose h2 {
+    @apply text-2xl font-bold mt-8 mb-4 text-text-primary;
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  .prose h3 {
+    @apply text-xl font-semibold mt-6 mb-3 text-text-primary;
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  .prose p {
+    @apply mb-4 leading-relaxed text-text-secondary;
+  }
+  .prose ul {
+    @apply list-disc pl-6 mb-4;
+  }
+  .prose ol {
+    @apply list-decimal pl-6 mb-4;
+  }
+  .prose code {
+    @apply bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono;
+  }
+  .prose pre {
+    @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4;
+  }
+  .prose pre code {
+    @apply bg-transparent text-inherit p-0;
+  }
+  .prose blockquote {
+    @apply border-l-4 border-primary pl-4 italic text-text-secondary my-4;
+  }
+  .prose a {
+    @apply text-primary hover:text-primary-hover underline;
+  }
+  .prose img {
+    @apply rounded-lg max-w-full h-auto my-4;
+  }
+  .prose strong {
+    @apply text-text-primary;
+  }
+</style>

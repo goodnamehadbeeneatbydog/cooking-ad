@@ -1,0 +1,88 @@
+---
+/**
+ * 统一广告管理组件
+ * 支持多平台广告轮播和智能分配
+ * 使用: <AdManager position="article-inline" index={0} />
+ */
+
+import AdSense from '../AdSense.astro';
+import MediaNet from './MediaNet.astro';
+import CarbonAds from './CarbonAds.astro';
+import AmazonAffiliate from './AmazonAffiliate.astro';
+
+interface Props {
+  /** 广告位置标识 */
+  position: 'header' | 'article-top' | 'article-inline' | 'article-bottom' | 'sidebar' | 'footer' | 'list-mid';
+  /** 同位置多个广告时的索引，用于轮播 */
+  index?: number;
+}
+
+const { position, index = 0 } = Astro.props;
+
+// 获取各平台配置状态
+const hasAdSense = !!import.meta.env.PUBLIC_GOOGLE_ADSENSE_CLIENT;
+const hasMediaNet = !!(import.meta.env.PUBLIC_MEDIANET_CID && import.meta.env.PUBLIC_MEDIANET_CRID);
+const hasCarbon = !!(import.meta.env.PUBLIC_CARBON_SERVE && import.meta.env.PUBLIC_CARBON_PLACEMENT);
+const hasAmazon = !!import.meta.env.PUBLIC_AMAZON_ASSOCIATE_TAG;
+
+// 广告位置配置: [平台, 尺寸/类型]
+const positionMap: Record<string, string[]> = {
+  'header':       ['adsense', 'medianet'],
+  'article-top':  ['adsense', 'medianet', 'carbon'],
+  'article-inline': ['medianet', 'adsense', 'amazon'],
+  'article-bottom': ['adsense', 'amazon', 'carbon'],
+  'sidebar':      ['carbon', 'adsense', 'medianet'],
+  'footer':       ['adsense', 'propeller'],
+  'list-mid':     ['medianet', 'adsense'],
+};
+
+// 根据位置+索引选择平台 (轮播逻辑)
+const platforms = positionMap[position] || ['adsense'];
+const availablePlatforms = platforms.filter(p => {
+  if (p === 'adsense') return hasAdSense;
+  if (p === 'medianet') return hasMediaNet;
+  if (p === 'carbon') return hasCarbon;
+  if (p === 'amazon') return hasAmazon;
+  return false;
+});
+
+// 如果没有配置任何平台，fallback 到占位提示
+const selectedPlatform = availablePlatforms[index % availablePlatforms.length] || null;
+
+// 广告位尺寸配置
+const formatMap: Record<string, { format: string; size: string }> = {
+  'header':       { format: 'horizontal', size: '728x90' },
+  'article-top':  { format: 'horizontal', size: '728x90' },
+  'article-inline': { format: 'rectangle', size: '300x250' },
+  'article-bottom': { format: 'rectangle', size: '300x250' },
+  'sidebar':      { format: 'vertical', size: '160x600' },
+  'footer':       { format: 'horizontal', size: '728x90' },
+  'list-mid':     { format: 'horizontal', size: '728x90' },
+};
+
+const fmt = formatMap[position] || { format: 'auto', size: '300x250' };
+---
+
+{selectedPlatform === 'adsense' && (
+  <AdSense slot={`${position}-${index}`} format={fmt.format as any} />
+)}
+
+{selectedPlatform === 'medianet' && (
+  <MediaNet slot={`${position}-${index}`} size={fmt.size as any} />
+)}
+
+{selectedPlatform === 'carbon' && (
+  <CarbonAds />
+)}
+
+{selectedPlatform === 'amazon' && (
+  <AmazonAffiliate template="search" width={parseInt(fmt.size.split('x')[0])} height={parseInt(fmt.size.split('x')[1])} />
+)}
+
+{!selectedPlatform && (
+  <div class="ad-container my-6 p-4 bg-gray-100 rounded-lg border border-dashed border-gray-300" data-ad-placeholder="empty">
+    <p class="text-xs text-gray-400 text-center">
+      [广告位: {position}] 请在 .env 中配置至少一个广告平台
+    </p>
+  </div>
+)}

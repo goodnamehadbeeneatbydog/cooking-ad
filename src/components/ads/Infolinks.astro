@@ -1,0 +1,20 @@
+---
+const pid = import.meta.env.PUBLIC_INFOLINKS_PID || '';
+const wsid = import.meta.env.PUBLIC_INFOLINKS_WSID || '';
+---
+
+{pid && wsid && (
+  <script is:inline type="text/javascript" define:vars={{ pid, wsid }}>
+    var infolinks_pid = pid;
+    var infolinks_wsid = wsid;
+  </script>
+  <script is:inline type="text/javascript" src="//resources.infolinks.com/js/infolinks_main.js"></script>
+)}
+
+{(!pid || !wsid) && (
+  <div class="ad-container my-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200" data-ad-placeholder="infolinks">
+    <p class="text-sm text-yellow-700 text-center">
+      [Infolinks 广告位] 请在 .env 中配置 PUBLIC_INFOLINKS_PID 和 PUBLIC_INFOLINKS_WSID
+    </p>
+  </div>
+)}

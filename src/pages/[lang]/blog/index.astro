@@ -1,0 +1,95 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import AdManager from '../../../components/ads/AdManager.astro';
+import { t, type Lang } from '../../../utils/i18n';
+
+export async function getStaticPaths() {
+  return ['en', 'zh'].map(lang => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+
+const posts = (await getCollection('blog', (entry) =>
+  !entry.data.draft && entry.data.lang === lang
+)).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const allCategories = [...new Set(posts.map(p => p.data.category))];
+---
+
+<Layout title={`${t(lang, 'nav.blog')} - ${lang === 'zh' ? '中餐指南' : 'Chinese Cooking Guide'}`} lang={lang}>
+  <Header lang={lang} />
+
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <div class="flex flex-col lg:flex-row gap-8">
+      <div class="flex-1">
+        <h1 class="text-3xl font-bold mb-6 text-text-primary font-display">{t(lang, 'nav.blog')}</h1>
+
+        <AdManager position="article-top" />
+
+        <div class="space-y-6 mt-6">
+          {posts.map(post => (
+            <article class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="px-3 py-1 bg-primary-light text-primary text-xs font-medium rounded-full">
+                  {post.data.category}
+                </span>
+                {post.data.difficulty && (
+                  <span class={`text-xs font-medium px-2 py-0.5 rounded ${
+                    post.data.difficulty === 'Easy' ? 'bg-green-50 text-green-600' :
+                    post.data.difficulty === 'Medium' ? 'bg-yellow-50 text-yellow-600' :
+                    'bg-red-50 text-red-600'
+                  }`}>
+                    {post.data.difficulty}
+                  </span>
+                )}
+                <time class="text-xs text-text-muted">
+                  {post.data.pubDate.toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                </time>
+              </div>
+              <h2 class="text-xl font-semibold mb-2 font-display">
+                <a href={`/${lang}/blog/${post.slug}`} class="hover:text-primary transition-colors">
+                  {post.data.title}
+                </a>
+              </h2>
+              <p class="text-text-secondary mb-4">{post.data.description}</p>
+              <div class="flex items-center justify-between">
+                <div class="flex gap-2">
+                  {post.data.tags.slice(0, 3).map(tag => (
+                    <span class="text-xs text-text-muted bg-gray-100 px-2 py-0.5 rounded">{tag}</span>
+                  ))}
+                </div>
+                <a href={`/${lang}/blog/${post.slug}`} class="text-primary hover:text-primary-hover font-medium">
+                  {t(lang, 'blog.readMore')} →
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <aside class="lg:w-64">
+        <div class="sticky top-24">
+          <h3 class="font-semibold mb-3 text-text-primary">{t(lang, 'nav.categories')}</h3>
+          <div class="space-y-1">
+            {allCategories.map(cat => (
+              <a
+                href={`/${lang}/blog?category=${encodeURIComponent(cat)}`}
+                class="block px-3 py-2 rounded text-sm text-text-secondary bg-surface hover:bg-primary-light hover:text-primary transition-colors"
+              >
+                {cat}
+              </a>
+            ))}
+          </div>
+          <div class="mt-6">
+            <AdManager position="sidebar" />
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <Footer lang={lang} />
+</Layout>

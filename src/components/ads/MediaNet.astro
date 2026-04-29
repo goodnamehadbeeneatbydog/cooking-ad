@@ -1,0 +1,48 @@
+---
+interface Props {
+  slot?: string;
+  size?: '300x250' | '728x90' | '160x600' | '300x600';
+}
+
+const { slot = 'default', size = '300x250' } = Astro.props;
+const cid = import.meta.env.PUBLIC_MEDIANET_CID || '';
+const crid = import.meta.env.PUBLIC_MEDIANET_CRID || '';
+
+const sizeMap: Record<string, { width: number; height: number }> = {
+  '300x250': { width: 300, height: 250 },
+  '728x90': { width: 728, height: 90 },
+  '160x600': { width: 160, height: 600 },
+  '300x600': { width: 300, height: 600 },
+};
+
+const dims = sizeMap[size];
+---
+
+{cid && crid && (
+  <div class="ad-container my-6 p-4 bg-gray-50 rounded-lg border border-gray-200" data-ad-network="medianet">
+    <p class="text-xs text-gray-400 text-center mb-2">Advertisement</p>
+    <div class="flex justify-center">
+      <ins class="adsbygoogle"
+        style={`display:inline-block;width:${dims.width}px;height:${dims.height}px`}
+        data-ad-client={`ca-pub-${cid}`}
+        data-ad-slot={slot}
+      ></ins>
+    </div>
+    <script is:inline define:vars={{ cid, crid }}>
+      try {
+        window._mNHandle = window._mNHandle || {};
+        window._mNHandle.queue = window._mNHandle.queue || [];
+        window._mNDetails = window._mNDetails || { tagId: crid };
+      } catch(e) {}
+    </script>
+    <script is:inline async src={`//contextual.media.net/nmedianet.js?cid=${cid}&crid=${crid}`}></script>
+  </div>
+)}
+
+{(!cid || !crid) && (
+  <div class="ad-container my-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200" data-ad-placeholder="medianet">
+    <p class="text-sm text-yellow-700 text-center">
+      [Media.net 广告位] 请在 .env 中配置 PUBLIC_MEDIANET_CID 和 PUBLIC_MEDIANET_CRID
+    </p>
+  </div>
+)}

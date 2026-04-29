@@ -1,0 +1,58 @@
+---
+interface Props {
+  serve?: string;
+  placement?: string;
+}
+
+const { serve, placement } = Astro.props;
+const carbonServe = serve || import.meta.env.PUBLIC_CARBON_SERVE || '';
+const carbonPlacement = placement || import.meta.env.PUBLIC_CARBON_PLACEMENT || '';
+---
+
+{carbonServe && carbonPlacement && (
+  <div class="ad-container my-6" data-ad-network="carbon">
+    <script is:inline async
+      id={`_carbonads_js`}
+      src={`//cdn.carbonads.com/carbon.js?serve=${carbonServe}&placement=${carbonPlacement}`}>
+    </script>
+  </div>
+)}
+
+{(!carbonServe || !carbonPlacement) && (
+  <div class="ad-container my-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200" data-ad-placeholder="carbon">
+    <p class="text-sm text-yellow-700 text-center">
+      [Carbon Ads 广告位] 请在 .env 中配置 PUBLIC_CARBON_SERVE 和 PUBLIC_CARBON_PLACEMENT
+    </p>
+  </div>
+)}
+
+<style is:global>
+  #carbonads {
+    display: block;
+    overflow: hidden;
+    padding: 1em;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    text-align: center;
+    line-height: 1.5;
+  }
+  #carbonads span { display: block; overflow: hidden; }
+  .carbon-wrap { display: flex; align-items: center; justify-content: center; gap: 1em; }
+  .carbon-img { display: block; margin: 0; line-height: 1; }
+  .carbon-img img { display: block; height: 60px; width: auto; }
+  .carbon-text {
+    display: block;
+    color: #334155;
+    font-size: 0.75rem;
+    text-decoration: none;
+    text-align: left;
+  }
+  .carbon-poweredby {
+    display: block;
+    color: #94a3b8;
+    font-size: 0.625rem;
+    text-decoration: none;
+    margin-top: 0.25rem;
+  }
+</style>

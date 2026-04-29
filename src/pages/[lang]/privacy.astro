@@ -1,0 +1,109 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { t, type Lang } from '../../utils/i18n';
+
+export async function getStaticPaths() {
+  return ['zh', 'en'].map(lang => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+
+const title = lang === 'zh' ? '隐私政策 - 柳钉鱼的工具屋' : 'Privacy Policy - Liudingyu Tools';
+const description = lang === 'zh'
+  ? '了解我们如何保护您的隐私和数据安全'
+  : 'Learn how we protect your privacy and data security';
+---
+
+<Layout title={title} description={description} lang={lang}>
+  <Header lang={lang} />
+
+  <main class="flex-1 bg-white">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <h1 class="text-3xl font-bold text-gray-900 mb-8">
+        {lang === 'zh' ? '隐私政策' : 'Privacy Policy'}
+      </h1>
+
+      <div class="prose max-w-none">
+        {lang === 'zh' ? (
+          <>
+            <p>最后更新日期：2026年4月28日</p>
+
+            <h2>1. 引言</h2>
+            <p>欢迎使用柳钉鱼的工具屋（actfont.top）。我们非常重视您的隐私和个人信息保护。本隐私政策说明我们在您访问本网站时如何收集、使用和保护您的信息。</p>
+
+            <h2>2. 信息收集</h2>
+            <p>当您访问本网站时，我们可能通过以下方式收集信息：</p>
+            <ul>
+              <li><strong>Cookie 和类似技术</strong>：我们使用 Cookie 来改善您的浏览体验和分析网站流量。</li>
+              <li><strong>Google AdSense</strong>：作为第三方供应商，Google 使用 Cookie 在本网站上投放广告。Google 使用 DART Cookie 使其能够根据用户对本网站和互联网上其他网站的访问向用户提供广告。</li>
+              <li><strong>分析数据</strong>：我们使用分析工具了解访客如何与网站互动，以便改进内容和服务。</li>
+            </ul>
+
+            <h2>3. 信息使用</h2>
+            <p>我们收集的信息用于：</p>
+            <ul>
+              <li>提供和维护网站服务</li>
+              <li>显示个性化广告（通过 Google AdSense）</li>
+              <li>分析网站流量和用户行为</li>
+              <li>改进网站内容和用户体验</li>
+            </ul>
+
+            <h2>4. 第三方服务</h2>
+            <p>本网站使用以下第三方服务：</p>
+            <ul>
+              <li><strong>Google AdSense</strong>：用于展示广告。Google 的隐私政策请访问 <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">https://policies.google.com/privacy</a></li>
+              <li><strong>Vercel</strong>：用于网站托管服务</li>
+            </ul>
+
+            <h2>5. Cookie 管理</h2>
+            <p>您可以通过浏览器设置选择禁用 Cookie。但请注意，禁用 Cookie 可能影响网站的某些功能。</p>
+
+            <h2>6. 联系我们</h2>
+            <p>如果您对本隐私政策有任何疑问，请通过 contact@actfont.top 联系我们。</p>
+          </>
+        ) : (
+          <>
+            <p>Last updated: April 28, 2026</p>
+
+            <h2>1. Introduction</h2>
+            <p>Welcome to Liudingyu's Tool House (actfont.top). We take your privacy and personal information protection very seriously. This Privacy Policy explains how we collect, use, and protect your information when you visit our website.</p>
+
+            <h2>2. Information Collection</h2>
+            <p>When you visit this website, we may collect information through:</p>
+            <ul>
+              <li><strong>Cookies and similar technologies</strong>: We use cookies to improve your browsing experience and analyze website traffic.</li>
+              <li><strong>Google AdSense</strong>: As a third-party vendor, Google uses cookies to serve ads on this site. Google's use of the DART cookie enables it to serve ads based on visits to this site and other sites on the Internet.</li>
+              <li><strong>Analytics data</strong>: We use analytics tools to understand how visitors interact with the website.</li>
+            </ul>
+
+            <h2>3. Information Usage</h2>
+            <p>The information we collect is used to:</p>
+            <ul>
+              <li>Provide and maintain website services</li>
+              <li>Display personalized advertisements (via Google AdSense)</li>
+              <li>Analyze website traffic and user behavior</li>
+              <li>Improve website content and user experience</li>
+            </ul>
+
+            <h2>4. Third-Party Services</h2>
+            <p>This website uses the following third-party services:</p>
+            <ul>
+              <li><strong>Google AdSense</strong>: For displaying advertisements. Google's privacy policy: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">https://policies.google.com/privacy</a></li>
+              <li><strong>Vercel</strong>: For website hosting services</li>
+            </ul>
+
+            <h2>5. Cookie Management</h2>
+            <p>You can choose to disable cookies through your browser settings. Please note that disabling cookies may affect certain features of the website.</p>
+
+            <h2>6. Contact Us</h2>
+            <p>If you have any questions about this Privacy Policy, please contact us at contact@actfont.top.</p>
+          </>
+        )}
+      </div>
+    </div>
+  </main>
+
+  <Footer lang={lang} />
+</Layout>

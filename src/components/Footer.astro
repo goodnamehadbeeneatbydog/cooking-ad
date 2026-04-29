@@ -1,0 +1,43 @@
+---
+import { t, type Lang } from '../utils/i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<footer class="bg-surface-dark text-gray-300 mt-auto">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div>
+        <h3 class="text-white font-semibold mb-3 font-display text-lg">
+          {lang === 'zh' ? '中餐指南' : 'Chinese Cooking Guide'}
+        </h3>
+        <p class="text-sm text-gray-400">
+          {lang === 'zh'
+            ? '教你在家做出地道中国菜，从经典名菜到家常小炒'
+            : 'Learn authentic Chinese cooking at home, from classic dishes to everyday stir-fries'}
+        </p>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold mb-3">{t(lang, 'nav.categories')}</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href={`/${lang}/blog`} class="hover:text-white transition-colors">{t(lang, 'nav.blog')}</a></li>
+          <li><a href={`/${lang}/about`} class="hover:text-white transition-colors">{t(lang, 'nav.about')}</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold mb-3">{t(lang, 'footer.links')}</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href={`/${lang}/about`} class="hover:text-white transition-colors">{t(lang, 'footer.about')}</a></li>
+          <li><a href={`/${lang}/privacy`} class="hover:text-white transition-colors">{lang === 'zh' ? '隐私政策' : 'Privacy Policy'}</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-gray-800 mt-8 pt-6 text-center text-sm text-gray-500">
+      &copy; {new Date().getFullYear()} cooking.actfont.top. All rights reserved.
+    </div>
+  </div>
+</footer>

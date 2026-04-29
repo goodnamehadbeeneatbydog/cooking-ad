@@ -1,0 +1,35 @@
+---
+interface Props {
+  slot: string;
+  format?: 'auto' | 'rectangle' | 'horizontal' | 'vertical';
+  style?: string;
+}
+
+const { slot, format = 'auto', style = 'display:block' } = Astro.props;
+const clientId = import.meta.env.PUBLIC_GOOGLE_ADSENSE_CLIENT || '';
+---
+
+{clientId && (
+  <div class="ad-container my-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+    <p class="text-xs text-gray-400 text-center mb-2">Advertisement</p>
+    <ins
+      class="adsbygoogle"
+      style={style}
+      data-ad-client={clientId}
+      data-ad-slot={slot}
+      data-ad-format={format}
+      data-full-width-responsive="true"
+    ></ins>
+    <script is:inline>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
+)}
+
+{!clientId && (
+  <div class="ad-container my-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+    <p class="text-sm text-yellow-700 text-center">
+      [广告位] 请在 .env 中配置 PUBLIC_GOOGLE_ADSENSE_CLIENT
+    </p>
+  </div>
+)}

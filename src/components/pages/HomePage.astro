@@ -1,0 +1,158 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Header from '../Header.astro';
+import Footer from '../Footer.astro';
+import AdManager from '../ads/AdManager.astro';
+import { t, type Lang } from '../../utils/i18n';
+
+interface Props {
+  lang: Lang;
+  canonical?: string;
+}
+
+const { lang, canonical } = Astro.props;
+
+const allPosts = await getCollection('blog', (entry) => !entry.data.draft && entry.data.lang === lang);
+const latestPosts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()).slice(0, 6);
+
+const categories = [...new Set(allPosts.map(p => p.data.category))].slice(0, 8);
+
+const cuisineCategories = lang === 'zh'
+  ? ['川菜', '粤菜', '湘菜', '鲁菜', '面食点心', '汤羹', '小吃', '家常菜']
+  : ['Sichuan', 'Cantonese', 'Hunan', 'Shandong', 'Noodles & Dumplings', 'Soups & Broths', 'Street Food & Snacks', 'Rice & Stir-Fry'];
+---
+
+<Layout title={lang === 'zh' ? '中餐指南 - 教你做地道中国菜' : 'Chinese Cooking Guide - Authentic Recipes'} lang={lang} canonical={canonical}>
+  <Header lang={lang} />
+
+  <main class="flex-1">
+    <!-- Hero -->
+    <section class="bg-gradient-to-br from-orange-600 via-red-500 to-amber-500 text-white py-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-5xl md:text-6xl font-bold mb-6 font-display">
+          {lang === 'zh' ? '在家做出地道中国菜' : 'Master Chinese Cooking at Home'}
+        </h1>
+        <p class="text-xl text-orange-100 max-w-2xl mx-auto leading-relaxed">
+          {lang === 'zh'
+            ? '100+ 经典菜谱，从八大菜系到街头小吃，一步步教你做美味中餐'
+            : '100+ authentic recipes from China\'s eight great cuisines to street food favorites. Step-by-step guides for delicious home cooking.'}
+        </p>
+      </div>
+    </section>
+
+    <!-- Cuisine Categories -->
+    <section class="py-8 bg-white border-b">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-wrap gap-3 justify-center">
+          {cuisineCategories.map(cat => (
+            <a
+              href={`/${lang}/blog?category=${encodeURIComponent(cat)}`}
+              class="px-5 py-2.5 bg-surface hover:bg-primary-light text-text-primary hover:text-primary rounded-full text-sm font-medium transition-colors border border-gray-100"
+            >
+              {cat}
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Top Ad -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <AdManager position="header" />
+    </div>
+
+    <!-- Latest Recipes -->
+    <section class="py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="text-2xl font-bold text-text-primary font-display">{t(lang, 'home.latest')}</h2>
+          <a href={`/${lang}/blog`} class="text-primary hover:text-primary-hover font-medium">
+            {t(lang, 'home.viewAll')} →
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {latestPosts.map(post => (
+            <article class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-gray-100">
+              <div class="p-6">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="inline-block px-3 py-1 bg-primary-light text-primary text-xs font-medium rounded-full">
+                    {post.data.category}
+                  </span>
+                  {post.data.difficulty && (
+                    <span class={`text-xs font-medium px-2 py-0.5 rounded ${
+                      post.data.difficulty === 'Easy' ? 'bg-green-50 text-green-600' :
+                      post.data.difficulty === 'Medium' ? 'bg-yellow-50 text-yellow-600' :
+                      'bg-red-50 text-red-600'
+                    }`}>
+                      {post.data.difficulty}
+                    </span>
+                  )}
+                </div>
+                <h3 class="text-lg font-semibold mb-2 line-clamp-2 font-display">
+                  <a href={`/${lang}/blog/${post.slug}`} class="hover:text-primary transition-colors">
+                    {post.data.title}
+                  </a>
+                </h3>
+                <p class="text-text-secondary text-sm line-clamp-3 mb-4">{post.data.description}</p>
+                <div class="flex items-center justify-between text-xs text-text-muted">
+                  <time>
+                    {post.data.pubDate.toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                  </time>
+                  {(post.data.prepTime || post.data.cookTime) && (
+                    <span class="flex items-center gap-2">
+                      {post.data.prepTime && (
+                        <span>{post.data.prepTime}</span>
+                      )}
+                      {post.data.cookTime && (
+                        <span>{post.data.cookTime}</span>
+                      )}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Middle Ad -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <AdManager position="list-mid" />
+    </div>
+
+    <!-- Popular Categories Section -->
+    <section class="py-12 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10">
+          <h2 class="text-2xl font-bold text-text-primary font-display mb-3">
+            {lang === 'zh' ? '探索八大菜系' : 'Explore Chinese Cuisines'}
+          </h2>
+          <p class="text-text-secondary max-w-xl mx-auto">
+            {lang === 'zh'
+              ? '从川菜的麻辣鲜香到粤菜的清淡鲜美，每一道菜都是文化的传承'
+              : 'From the fiery spice of Sichuan to the delicate freshness of Cantonese, every dish tells a story'}
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {(lang === 'zh' ? ['川菜', '粤菜', '湘菜', '鲁菜', '苏菜', '浙菜', '闽菜', '徽菜'] : ['Sichuan', 'Cantonese', 'Hunan', 'Shandong', 'Jiangsu', 'Zhejiang', 'Fujian', 'Anhui']).map(cuisine => (
+            <a
+              href={`/${lang}/blog?category=${encodeURIComponent(cuisine)}`}
+              class="group bg-surface rounded-xl p-6 text-center hover:shadow-md transition-all border border-gray-100 hover:border-primary/20"
+            >
+              <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white text-lg font-bold font-display group-hover:scale-110 transition-transform">
+                {cuisine.charAt(0)}
+              </div>
+              <h3 class="font-semibold text-text-primary group-hover:text-primary transition-colors">{cuisine}</h3>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer lang={lang} />
+</Layout>

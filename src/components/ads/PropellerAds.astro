@@ -1,0 +1,30 @@
+---
+interface Props {
+  zoneId?: string;
+  type?: 'banner' | 'native' | 'interstitial';
+}
+
+const { zoneId, type = 'banner' } = Astro.props;
+const zone = zoneId || import.meta.env.PUBLIC_PROPELLERADS_ZONE_ID || '';
+---
+
+{zone && (
+  <div class="ad-container my-6" data-ad-network="propeller">
+    {type === 'banner' && (
+      <script is:inline>
+        (function(d,z,s){
+          s.src='https://'+d+'/401/'+z;
+          try{(document.body||document.documentElement).appendChild(s)}catch(e){}
+        })('groleegni.net', '{zone}', document.createElement('script'))
+      </script>
+    )}
+  </div>
+)}
+
+{!zone && (
+  <div class="ad-container my-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200" data-ad-placeholder="propeller">
+    <p class="text-sm text-yellow-700 text-center">
+      [PropellerAds 广告位] 请在 .env 中配置 PUBLIC_PROPELLERADS_ZONE_ID
+    </p>
+  </div>
+)}

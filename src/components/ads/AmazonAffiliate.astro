@@ -1,0 +1,66 @@
+---
+interface Props {
+  asin?: string;
+  title?: string;
+  template?: 'product' | 'search' | 'banner';
+  width?: number;
+  height?: number;
+}
+
+const {
+  asin = '',
+  title = '',
+  template = 'product',
+  width = 300,
+  height = 250
+} = Astro.props;
+
+const associateTag = import.meta.env.PUBLIC_AMAZON_ASSOCIATE_TAG || '';
+
+// 示例 ASIN 列表 - 常用开发工具相关
+const DEFAULT_ASINS = ['B08N5WRWNW', 'B08N5M7S6K', 'B07ZPKBL9P'];
+const displayAsin = asin || DEFAULT_ASINS[0];
+---
+
+{associateTag && (
+  <div class="ad-container my-6 p-4 bg-gray-50 rounded-lg border border-gray-200" data-ad-network="amazon">
+    <p class="text-xs text-gray-400 text-center mb-2">Amazon 推荐</p>
+    {template === 'product' && (
+      <div class="flex justify-center">
+        <iframe
+          src={`https://ws-na.amazon-adsystem.com/widgets/q?ServiceVersion=20070822&OneJS=1&Operation=GetAdHtml&MarketPlace=US&source=ss&ref=as_ss_li_til&ad_type=product_link&tracking_id=${associateTag}&language=en_US&marketplace=amazon&region=US&asins=${displayAsin}&show_border=true&link_opens_in_new_window=true&price_color=333333&title_color=0066c0&bg_color=ffffff`}
+          width={`${width}px`}
+          height={`${height}px`}
+          scrolling="no"
+          frameborder="0"
+          title={title || 'Amazon Affiliate Product'}
+        ></iframe>
+      </div>
+    )}
+    {template === 'search' && (
+      <script type="text/javascript" is:inline>
+        amzn_assoc_placement = "adunit0";
+        amzn_assoc_search_bar = "true";
+        amzn_assoc_tracking_id = "{associateTag}";
+        amzn_assoc_search_bar_position = "bottom";
+        amzn_assoc_ad_mode = "search";
+        amzn_assoc_ad_type = "smart";
+        amzn_assoc_marketplace = "amazon";
+        amzn_assoc_region = "US";
+        amzn_assoc_title = "相关推荐";
+        amzn_assoc_default_search_phrase = "developer tools";
+        amzn_assoc_default_category = "All";
+        amzn_assoc_linkid = "placeholder-link-id";
+      </script>
+      <script src="//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US" is:inline></script>
+    )}
+  </div>
+)}
+
+{!associateTag && (
+  <div class="ad-container my-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200" data-ad-placeholder="amazon">
+    <p class="text-sm text-yellow-700 text-center">
+      [Amazon 联盟广告位] 请在 .env 中配置 PUBLIC_AMAZON_ASSOCIATE_TAG
+    </p>
+  </div>
+)}
